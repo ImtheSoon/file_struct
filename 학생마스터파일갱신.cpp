@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include<string.h>
 #define ERROR -1
 
 typedef struct{
@@ -42,9 +43,10 @@ int main(void){
 					fread(&tmperson, sizeof(TPerson), 1, trans_file);
 					break;
 				case 'C':
-					mperson.name[10] = tmperson.person.name[10];
-					mperson.phone[10] = tmperson.person.phone[10];
-					fwrite(&mperson, sizeof(Person), 1, new_master_file);
+					mperson1.number = tmperson.person.number;
+					strcpy(mperson1.name,tmperson.person.name);
+					strcpy(mperson1.phone,tmperson.person.phone);
+					fwrite(&mperson1, sizeof(Person), 1, new_master_file);
 					fread(&tmperson, sizeof(TPerson), 1, trans_file);
 					fread(&mperson, sizeof(Person), 1, old_master_file);
 					break;
@@ -61,17 +63,17 @@ int main(void){
 			switch(tmperson.code){			
 				case 'I':
 					mperson1.number = tmperson.person.number;
-					mperson1.name[10] = tmperson.person.name[10];
-					mperson1.phone[10] = tmperson.person.phone[10];
+					strcpy(mperson1.name,tmperson.person.name);
+					strcpy(mperson1.phone,tmperson.person.phone);
 					fwrite(&mperson1, sizeof(Person), 1, new_master_file);
 					fread(&tmperson, sizeof(TPerson), 1, trans_file);
 					break; 
 				case 'C':
-					printf("error : 트랜스 키에 일치하는 마스터 레코드 없음");
+					printf("error : 트랜스 키에 일치하는 마스터 레코드 없음\n");
 					fread(&tmperson, sizeof(TPerson), 1, trans_file);
 					break;
 				case 'D':
-					printf("error : 트랜스 키에 일치하는 마스터 레코드 없음");
+					printf("error : 트랜스 키에 일치하는 마스터 레코드 없음\n");
 					fread(&tmperson, sizeof(TPerson), 1, trans_file);
 					break;
 				default:
@@ -81,9 +83,32 @@ int main(void){
 		}
 		
 	}
-	while(!(feof(old_master_file))){
+	while(!(feof(old_master_file)) && (feof(trans_file))){
 		fwrite(&mperson, sizeof(Person), 1, new_master_file);
 		fread(&mperson, sizeof(Person), 1, old_master_file);
+	}
+	
+	while((feof(old_master_file)) && !(feof(trans_file))){
+		switch(tmperson.code){			
+			case 'I':
+				mperson1.number = tmperson.person.number;
+				strcpy(mperson1.name,tmperson.person.name);
+				strcpy(mperson1.phone,tmperson.person.phone);
+				fwrite(&mperson1, sizeof(Person), 1, new_master_file);
+				fread(&tmperson, sizeof(TPerson), 1, trans_file);
+				break; 
+			case 'C':
+				printf("error : 트랜스 키에 일치하는 마스터 레코드 없음\n");
+				fread(&tmperson, sizeof(TPerson), 1, trans_file);
+				break;
+			case 'D':
+				printf("error : 트랜스 키에 일치하는 마스터 레코드 없음\n");
+				fread(&tmperson, sizeof(TPerson), 1, trans_file);
+				break;
+			default:
+				printf("error : 잘못된 업데이트 코드\n");
+				fread(&tmperson, sizeof(TPerson), 1, trans_file);
+				}
 	}
 	fclose(old_master_file);
 	fclose(trans_file);
